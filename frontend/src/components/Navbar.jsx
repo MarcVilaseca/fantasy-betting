@@ -1,67 +1,58 @@
-﻿import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+﻿import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../utils/AuthContext';
 
-export default function Navbar() {
+function Navbar() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
 
-  const isActive = (path) => {
-    return location.pathname === path ? 'bg-blue-700 text-white' : 'text-blue-100 hover:bg-blue-600';
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
-  return (
-    <nav className="bg-blue-600 shadow-lg">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link to="/" className="text-white font-bold text-xl flex items-center gap-2">
-              ⚽ FantasyBet
-            </Link>
-            
-            {user && (
-              <div className="hidden md:flex ml-10 space-x-4">
-                <Link to="/" className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/')}`}>
-                  Inici
-                </Link>
-                <Link to="/betting" className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/betting')}`}>
-                  Apostar
-                </Link>
-                <Link to="/ranking" className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/ranking')}`}>
-                  Classificació
-                </Link>
-                {user.role === 'admin' && (
-                  <Link to="/admin" className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/admin')}`}>
-                    Admin
-                  </Link>
-                )}
-              </div>
-            )}
-          </div>
+  const isActive = (path) => location.pathname === path ? 'active' : '';
 
-          <div className="flex items-center">
-            {user ? (
-              <div className="flex items-center gap-4">
-                <span className="text-blue-100 text-sm hidden sm:block">
-                  Hola, {user.username}
-                </span>
-                <button
-                  onClick={logout}
-                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors"
-                >
-                  Tancar Sessió
-                </button>
-              </div>
-            ) : (
-              <div className="space-x-4">
-                <Link to="/login" className="text-white hover:text-blue-200">Entrar</Link>
-                <Link to="/register" className="bg-white text-blue-600 px-4 py-2 rounded hover:bg-blue-50">
-                  Registrar-se
-                </Link>
-              </div>
-            )}
+  if (!user) {
+    return (
+      <nav className="navbar">
+        <Link to="/" className="navbar-brand">
+          Fantasy Betting
+        </Link>
+        <ul className="navbar-nav">
+          <li><Link to="/leaderboard" className={`nav-link ${isActive('/leaderboard')}`}>Rànking</Link></li>
+          <li><Link to="/login" className={`nav-link ${isActive('/login')}`}>Login</Link></li>
+          <li><Link to="/register" className={`nav-link ${isActive('/register')}`}>Registrar-se</Link></li>
+        </ul>
+      </nav>
+    );
+  }
+
+  return (
+    <nav className="navbar">
+      <Link to="/" className="navbar-brand">
+        Fantasy Betting
+      </Link>
+      <ul className="navbar-nav">
+        <li><Link to="/" className={`nav-link ${isActive('/')}`}>Apostes</Link></li>
+        <li><Link to="/my-bets" className={`nav-link ${isActive('/my-bets')}`}>Les meves apostes</Link></li>
+        <li><Link to="/public-bets" className={`nav-link ${isActive('/public-bets')}`}>Apostes dels demés</Link></li>
+        <li><Link to="/fantasy-classification" className={`nav-link ${isActive('/fantasy-classification')}`}>Classificació Fantasy</Link></li>
+        <li><Link to="/leaderboard" className={`nav-link ${isActive('/leaderboard')}`}>Rànking</Link></li>
+        {user.is_admin && (
+          <li><Link to="/admin" className={`nav-link ${isActive('/admin')}`}>Admin</Link></li>
+        )}
+        <li>
+          <div className="wallet" style={{ padding: '0.5rem 1rem', margin: 0 }}>
+            <span style={{ fontSize: '0.875rem', marginRight: '0.5rem' }}>💰</span>
+            <strong>{Number(user.coins).toFixed(0)}</strong>
+            <span style={{ fontSize: '0.75rem', marginLeft: '0.25rem' }}>monedes</span>
           </div>
-        </div>
-      </div>
+        </li>
+        <li><button onClick={handleLogout} className="btn btn-outline">Sortir</button></li>
+      </ul>
     </nav>
   );
 }
+
+export default Navbar;
