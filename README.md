@@ -83,20 +83,30 @@ El frontend estarà disponible a `http://localhost:3000`
 
 ## Deployment
 
-### Backend a Render
+### Backend a Vercel amb PostgreSQL
 
-1. Crear compte a [Render](https://render.com)
-2. Crear nou **Web Service**
-3. Connectar repositori GitHub
-4. Configurar:
-   - **Build Command**: `cd backend && npm install`
-   - **Start Command**: `cd backend && npm start`
-   - **Environment Variables**:
-     - `NODE_ENV=production`
-     - `JWT_SECRET=<genera-un-secret-segur>`
-     - `PORT=5000` (Render ho detecta automàticament)
+1. **Crear base de dades PostgreSQL** (Vercel Postgres, Neon, Supabase, etc.)
+   - Obtenir CONNECTION_STRING (comença amb `postgresql://...`)
 
-5. Desplegar
+2. **Configurar variables d'entorn a Vercel**:
+   ```
+   DATABASE_URL=postgresql://user:password@host:5432/dbname
+   JWT_SECRET=<genera-un-secret-segur>
+   NODE_ENV=production
+   ```
+
+3. **Inicialitzar la base de dades**:
+   Després del primer deploy, executar des del terminal de Vercel o local connectat a PostgreSQL:
+   ```bash
+   npm run init-production
+   ```
+
+   Això crearà:
+   - Usuari admin (username: admin, password: admin123, coins: 0)
+   - Els 2 partits inicials de Jornada 18
+   - Classificació fantasy amb 14 equips i 14 jornades
+
+4. **⚠️ IMPORTANT**: Canviar la contrasenya de l'admin després del primer login!
 
 ### Frontend a Vercel
 
@@ -108,7 +118,7 @@ El frontend estarà disponible a `http://localhost:3000`
    - **Build Command**: `npm run build`
    - **Output Directory**: `dist`
    - **Environment Variables**:
-     - `VITE_API_URL=https://el-teu-backend.onrender.com/api`
+     - `VITE_API_URL=https://el-teu-backend.vercel.app`
 
 4. Desplegar
 
