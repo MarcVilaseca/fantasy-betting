@@ -52,3 +52,27 @@
 
 # 2025-12-10 16:03:03.392982
 +/git add .
+
+# 2025-12-10 16:03:09.544636
++/git commit -m "Preparant entorn per Aider"
+
+# 2025-12-10 16:03:17.105687
++/add .
+
+# 2025-12-10 16:04:28.336718
++/add frontend/src/components/Navbar.jsx frontend/src/utils/api.js backend/server.js
+
+# 2025-12-10 16:04:32.153569
++Tinc 3 problemes que vull que arreglis:
+
+# 2025-12-10 16:04:34.752443
++1. A "frontend/src/components/Navbar.jsx", l'import de l'AuthContext està malament. Canvia "../context/AuthContext" per "../utils/AuthContext".
+
+# 2025-12-10 16:04:35.011232
++2. Al mateix "Navbar.jsx", assegura't que els accents (Rànking, Classificació) i l'emoji () es veuen bé (codificació UTF-8) i no amb símbols estranys.
+
+# 2025-12-10 16:04:35.372699
++3. Revisa la connexió entre Frontend i Backend. Mira si "frontend/src/utils/api.js" apunta al port correcte que defineix "backend/server.js". Si no coincideixen, arregla-ho perquè funcioni en localhost.
+
+# 2025-12-10 16:05:35.806814
++npm run dev
