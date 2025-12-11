@@ -1,37 +1,46 @@
-﻿{
-    "name":  "fantasy-betting-backend",
-    "version":  "1.0.0",
-    "description":  "Backend per sistema d\u0027apostes Fantasy - Mini Copa del Rei",
-    "main":  "server.js",
-    "type":  "module",
-    "scripts":  {
-                    "start":  "node server.js",
-                    "dev":  "nodemon server.js",
-                    "build":  "cd frontend && npm install && npm run build",
-                    "render-build":  "npm install && npm run build",
-                    "init-admin":  "node init-admin.js",
-                    "init-production":  "node init-production.js"
-                },
-    "keywords":  [
-                     "fantasy",
-                     "betting",
-                     "copa-del-rei"
-                 ],
-    "author":  "",
-    "license":  "MIT",
-    "dependencies":  {
-                         "bcryptjs":  "^2.4.3",
-                         "cors":  "^2.8.5",
-                         "dotenv":  "^16.3.1",
-                         "express":  "^4.18.2",
-                         "jsonwebtoken":  "^9.0.2",
-                         "pg":  "^8.16.3",
-                         "sqlite3":  "^5.1.7"
-                     },
-    "devDependencies":  {
-                            "nodemon":  "^3.0.2"
-                        },
-    "engines":  {
-                    "node":  "\u003e=18.0.0"
-                }
+{
+  "name": "fantasy-betting",
+  "version": "1.0.0",
+  "description": "Sistema d'apostes Fantasy - Mini Copa del Rei",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "server": "node server/index.js",
+    "start": "concurrently \"npm run server\" \"npm run dev\"",
+    "start:prod": "node server/index.js",
+    "build": "vite build",
+    "preview": "vite preview",
+    "postinstall": "npm run build"
+  },
+  "keywords": [
+    "fantasy",
+    "betting",
+    "copa-del-rei"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.21.0",
+    "axios": "^1.6.2",
+    "vite": "^5.0.8",
+    "@vitejs/plugin-react": "^4.2.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }

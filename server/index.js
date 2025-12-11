@@ -25,7 +25,7 @@ app.use(cors());
 app.use(express.json());
 
 // Servir frontend estàtic (després del build)
-app.use(express.static(path.join(__dirname, 'frontend', 'dist')));
+app.use(express.static(path.join(__dirname, '..', 'dist')));
 
 // Inicialitzar base de dades
 await initDatabase();
@@ -44,7 +44,7 @@ app.get('/api/health', (req, res) => {
 
 // Servir index.html per totes les altres rutes (React Router)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'dist', 'index.html'));
+  res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
 });
 
 // Error handling middleware
