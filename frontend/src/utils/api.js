@@ -76,11 +76,11 @@ export const bets = {
         return response.data;
     },
     cancel: async (id) => {
-        const response = await api.post(`/bets/${id}/cancel`);
+        const response = await api.delete(`/bets/${id}`);
         return response;
     },
     cancelParlay: async (id) => {
-        const response = await api.post(`/bets/parlay/${id}/cancel`);
+        const response = await api.delete(`/bets/parlay/${id}`);
         return response;
     },
     delete: async (id) => {
