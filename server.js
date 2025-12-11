@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { initDatabase } from './config/db.js';
 
 // Importar routes
@@ -12,12 +14,18 @@ import fantasyRoutes from './routes/fantasy.js';
 
 dotenv.config();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
+
+// Servir frontend estàtic (després del build)
+app.use(express.static(path.join(__dirname, 'frontend', 'dist')));
 
 // Inicialitzar base de dades
 await initDatabase();
@@ -32,6 +40,11 @@ app.use('/api/fantasy', fantasyRoutes);
 // Ruta de health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Fantasy Betting API is running' });
+});
+
+// Servir index.html per totes les altres rutes (React Router)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'dist', 'index.html'));
 });
 
 // Error handling middleware

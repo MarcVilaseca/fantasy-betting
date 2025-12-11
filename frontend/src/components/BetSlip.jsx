@@ -22,7 +22,7 @@ function BetSlip({ selectedBets, onPlaceBet, onClear, userCoins }) {
       return;
     }
 
-    if (betAmount > userCoins) {
+    if (betAmount > Number(userCoins || 0)) {
       alert('No tens prou monedes');
       return;
     }
@@ -152,12 +152,12 @@ function BetSlip({ selectedBets, onPlaceBet, onClear, userCoins }) {
               onChange={(e) => setAmount(e.target.value)}
               placeholder="0"
               min="1"
-              max={userCoins}
+              max={Number(userCoins || 0)}
               step="1"
               required
             />
             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-              Disponible: {userCoins.toFixed(0)} monedes
+              Disponible: {Number(userCoins || 0).toFixed(0)} monedes
             </div>
           </div>
 

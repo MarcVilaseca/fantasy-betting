@@ -66,7 +66,7 @@ function Home() {
         return;
       }
 
-      if (amount > user.coins) {
+      if (amount > Number(user?.coins || 0)) {
         alert('No tens prou monedes');
         return;
       }
@@ -77,7 +77,7 @@ function Home() {
           amount
         });
         updateUser({ coins: response.newBalance });
-        alert(`Aposta combinada creada! Retorn potencial: ${response.potential_return.toFixed(2)} monedes`);
+        alert(`Aposta combinada creada! Retorn potencial: ${Number(response.potential_return).toFixed(2)} monedes`);
       } else {
         if (selectedBets.length !== 1) {
           alert('Selecciona una sola aposta per aposta simple');
@@ -89,7 +89,7 @@ function Home() {
           amount
         });
         updateUser({ coins: response.newBalance });
-        alert(`Aposta creada! Retorn potencial: ${response.bet.potential_return.toFixed(2)} monedes`);
+        alert(`Aposta creada! Retorn potencial: ${Number(response.bet.potential_return).toFixed(2)} monedes`);
       }
 
       setSelectedBets([]);
@@ -156,7 +156,7 @@ function Home() {
           selectedBets={selectedBets}
           onPlaceBet={handlePlaceBet}
           onClear={clearBets}
-          userCoins={user.coins}
+          userCoins={Number(user?.coins || 0)}
         />
       </div>
     </div>
