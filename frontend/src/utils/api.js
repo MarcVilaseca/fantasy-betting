@@ -60,7 +60,7 @@ export const bets = {
     },
     getMyParlays: async () => {
         try {
-            const response = await api.get('/bets/my-parlays');
+            const response = await api.get('/bets/my/parlays');
             return response.data;
         } catch (error) {
             console.error("Error my parlays:", error);
