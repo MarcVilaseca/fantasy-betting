@@ -1,6 +1,6 @@
 {
   "name": "fantasy-betting",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Sistema d'apostes Fantasy - Mini Copa del Rei",
   "private": true,
   "type": "module",
@@ -9,7 +9,7 @@
     "server": "node server/index.js",
     "start": "concurrently \"npm run server\" \"npm run dev\"",
     "start:prod": "node server/index.js",
-    "build": "vite build",
+    "build": "vite build --force --emptyOutDir",
     "preview": "vite preview",
     "postinstall": "npm run build"
   },
