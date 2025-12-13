@@ -222,12 +222,9 @@ function MyBets() {
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                       {formatDate(bet.created_at)}
                     </div>
-                    {bet.status === 'pending' && (
+                    {bet.status === 'pending' && bet.match_status === 'open' && (
                       <button
-                        onClick={() => {
-                          alert('BOTÓ CLICAT! ID: ' + bet.id);
-                          handleCancelBet(bet.id);
-                        }}
+                        onClick={() => handleCancelBet(bet.id)}
                         style={{
                           background: '#e74c3c',
                           color: 'white',
@@ -241,6 +238,11 @@ function MyBets() {
                       >
                         Cancel·lar
                       </button>
+                    )}
+                    {bet.status === 'pending' && bet.match_status !== 'open' && (
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                        Aposta tancada
+                      </div>
                     )}
                   </div>
                 </div>
@@ -320,7 +322,7 @@ function MyBets() {
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                       {formatDate(parlay.created_at)}
                     </div>
-                    {parlay.status === 'pending' && (
+                    {parlay.status === 'pending' && parlay.bets.every(b => b.match_status === 'open') && (
                       <button
                         onClick={() => handleCancelParlay(parlay.id)}
                         style={{
@@ -336,6 +338,11 @@ function MyBets() {
                       >
                         Cancel·lar
                       </button>
+                    )}
+                    {parlay.status === 'pending' && !parlay.bets.every(b => b.match_status === 'open') && (
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+                        Aposta tancada
+                      </div>
                     )}
                   </div>
                 </div>

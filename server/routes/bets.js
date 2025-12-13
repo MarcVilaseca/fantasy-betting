@@ -290,6 +290,15 @@ router.post('/:id/cancel', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'Només es poden cancel·lar apostes pendents' });
     }
 
+    // Verificar que el partit encara està obert
+    const match = await matchQueries.findById(bet.match_id);
+    if (!match) {
+      return res.status(404).json({ error: 'Partit no trobat' });
+    }
+    if (match.status !== 'open') {
+      return res.status(400).json({ error: 'No es poden cancel·lar apostes de partits tancats o finalitzats' });
+    }
+
     // Verificar que té una quantitat a retornar (no és part d'una combinada)
     if (bet.amount === 0) {
       return res.status(400).json({ error: 'No es poden cancel·lar apostes que formen part d\'una combinada' });
@@ -423,6 +432,18 @@ router.post('/parlay/:id/cancel', authenticateToken, async (req, res) => {
       return res.status(400).json({ error: 'Només es poden cancel·lar apostes pendents' });
     }
 
+    // Verificar que tots els partits encara estan oberts
+    const items = await parlayQueries.getItems(req.params.id);
+    for (const item of items) {
+      const match = await matchQueries.findById(item.match_id);
+      if (!match) {
+        return res.status(404).json({ error: 'Un dels partits no s\'ha trobat' });
+      }
+      if (match.status !== 'open') {
+        return res.status(400).json({ error: 'No es poden cancel·lar apostes amb partits tancats o finalitzats' });
+      }
+    }
+
     // Retornar monedes a l'usuari
     const user = await userQueries.findById(req.user.id);
     const newCoins = Number(user.coins) + Number(parlay.amount);
@@ -440,7 +461,6 @@ router.post('/parlay/:id/cancel', authenticateToken, async (req, res) => {
     await parlayQueries.updateStatus('cancelled', null, req.params.id);
 
     // També cancel·lar totes les apostes individuals
-    const items = await parlayQueries.getItems(req.params.id);
     await Promise.all(items.map(item => betQueries.updateStatus('cancelled', null, item.bet_id)));
 
     res.json({
