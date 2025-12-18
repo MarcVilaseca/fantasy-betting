@@ -295,27 +295,29 @@ body {
 }
 
 .tab-button {
-  background: none;
+  background: rgba(255, 255, 255, 0.15);
   border: none;
   padding: 1rem 1.5rem;
   font-weight: 600;
   font-size: 1rem;
   cursor: pointer;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.85);
   border-bottom: 3px solid transparent;
   transition: all 0.2s;
   position: relative;
   bottom: -2px;
+  border-radius: 8px 8px 0 0;
 }
 
 .tab-button:hover {
-  color: var(--primary);
-  background: var(--light);
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.25);
   border-radius: 8px 8px 0 0;
 }
 
 .tab-button.active {
   color: var(--primary);
+  background: var(--white);
   border-bottom-color: var(--primary);
 }
 
@@ -323,8 +325,8 @@ body {
   display: inline-block;
   margin-left: 0.5rem;
   padding: 0.25rem 0.5rem;
-  background: var(--border);
-  color: var(--dark-light);
+  background: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.95);
   border-radius: 12px;
   font-size: 0.875rem;
   font-weight: 600;
@@ -333,6 +335,10 @@ body {
 .tab-button.active .tab-count {
   background: var(--primary);
   color: var(--white);
+}
+
+.tab-button:hover .tab-count {
+  background: rgba(255, 255, 255, 0.4);
 }
 
 /* Disabled bet buttons */
