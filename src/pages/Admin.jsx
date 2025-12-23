@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { matches as matchesApi, users as usersApi } from '../utils/api';
+import { matches as matchesApi, users as usersApi, copa as copaApi } from '../utils/api';
 
 function Admin() {
   const [activeTab, setActiveTab] = useState('matches');
@@ -7,6 +7,12 @@ function Admin() {
   const [users, setUsers] = useState([]);
   const [teams, setTeams] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // Copa exempts state
+  const [exempts, setExempts] = useState({
+    edition2: { exemptLeft: '', exemptRight: '' }
+  });
+  const [selectedEdition, setSelectedEdition] = useState('edition2');
 
   // Form states
   const [newMatch, setNewMatch] = useState({
@@ -65,6 +71,18 @@ function Admin() {
       setTeams(response || []);
     } catch (err) {
       console.error('Error en carregar equips:', err);
+    }
+  };
+
+  const handleUpdateExempts = async (e) => {
+    e.preventDefault();
+    try {
+      const { exemptLeft, exemptRight } = exempts[selectedEdition];
+      await copaApi.updateExempts(selectedEdition, exemptLeft, exemptRight);
+      alert(`Exempts actualitzats correctament per ${selectedEdition}!`);
+    } catch (err) {
+      console.error('Error actualitzant exempts:', err);
+      alert('Error actualitzant exempts');
     }
   };
 
@@ -263,6 +281,20 @@ function Admin() {
             }}
           >
             Gestionar Usuaris
+          </button>
+          <button
+            onClick={() => setActiveTab('copa-exempts')}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: '0.75rem 1rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              borderBottom: activeTab === 'copa-exempts' ? '3px solid var(--primary)' : 'none',
+              color: activeTab === 'copa-exempts' ? 'var(--primary)' : 'var(--text-secondary)'
+            }}
+          >
+            Copa - Exempts
           </button>
         </div>
 
@@ -499,6 +531,99 @@ function Admin() {
                 </button>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Gestió d'exempts de Copa del Rei */}
+        {activeTab === 'copa-exempts' && (
+          <div>
+            <h3 style={{ marginBottom: '1rem' }}>Gestió d'Exempts - Copa del Rei</h3>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+              Defineix els equips exempts de vuitens (només visual, sense apostes)
+            </p>
+
+            <div style={{
+              background: 'var(--light)',
+              padding: '1.5rem',
+              borderRadius: '8px'
+            }}>
+              <form onSubmit={handleUpdateExempts}>
+                {/* Selector d'edició */}
+                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                  <label className="form-label">Edició</label>
+                  <select
+                    className="form-input"
+                    value={selectedEdition}
+                    onChange={(e) => setSelectedEdition(e.target.value)}
+                  >
+                    <option value="edition1">Edició 1</option>
+                    <option value="edition2">Edició 2</option>
+                  </select>
+                </div>
+
+                {/* Exempt esquerra */}
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">Exempt Vuitens - Esquerra</label>
+                  <select
+                    className="form-input"
+                    value={exempts[selectedEdition]?.exemptLeft || ''}
+                    onChange={(e) => setExempts({
+                      ...exempts,
+                      [selectedEdition]: {
+                        ...exempts[selectedEdition],
+                        exemptLeft: e.target.value
+                      }
+                    })}
+                  >
+                    <option value="">Selecciona un equip...</option>
+                    {teams.map(team => (
+                      <option key={team} value={team}>{team}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Exempt dreta */}
+                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                  <label className="form-label">Exempt Vuitens - Dreta</label>
+                  <select
+                    className="form-input"
+                    value={exempts[selectedEdition]?.exemptRight || ''}
+                    onChange={(e) => setExempts({
+                      ...exempts,
+                      [selectedEdition]: {
+                        ...exempts[selectedEdition],
+                        exemptRight: e.target.value
+                      }
+                    })}
+                  >
+                    <option value="">Selecciona un equip...</option>
+                    {teams.map(team => (
+                      <option key={team} value={team}>{team}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <button type="submit" className="btn btn-primary">
+                  Actualitzar Exempts
+                </button>
+              </form>
+
+              <div style={{
+                marginTop: '1.5rem',
+                padding: '1rem',
+                background: 'var(--info-bg)',
+                borderRadius: '6px',
+                border: '1px solid var(--info)'
+              }}>
+                <strong style={{ color: 'var(--info)' }}>ℹ️ Informació:</strong>
+                <ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
+                  <li>Els exempts són només visuals/informatius</li>
+                  <li>NO creen partits ni apostes</li>
+                  <li>Apareixen al bracket de Copa del Rei</li>
+                  <li>Es mostren com a equips que passen directament a quarts</li>
+                </ul>
+              </div>
+            </div>
           </div>
         )}
       </div>

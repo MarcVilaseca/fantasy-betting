@@ -1,4 +1,4 @@
-﻿import pkg from 'pg';
+import pkg from 'pg';
 const { Pool } = pkg;
 
 // CONFIGURACIÓ INTEL·LIGENT:
@@ -30,23 +30,25 @@ export async function initDatabase() {
   try {
     // Nota: Utilitzem cometes dobles normals per evitar problemes
     await query("CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, username VARCHAR(255) UNIQUE NOT NULL, password TEXT NOT NULL, coins NUMERIC(10,2) DEFAULT 1000, is_admin BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
-    
+
     await query("CREATE TABLE IF NOT EXISTS matches (id SERIAL PRIMARY KEY, team1 VARCHAR(255) NOT NULL, team2 VARCHAR(255) NOT NULL, round VARCHAR(255) NOT NULL, status VARCHAR(50) DEFAULT 'open', score_team1 INTEGER, score_team2 INTEGER, betting_closes_at TIMESTAMP NOT NULL, result_date TIMESTAMP, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, copa_edition VARCHAR(50), copa_round VARCHAR(50), copa_position VARCHAR(50), UNIQUE(team1, team2, round))");
 
     // Afegir columnes Copa del Rei si no existeixen (migració)
     await query("ALTER TABLE matches ADD COLUMN IF NOT EXISTS copa_edition VARCHAR(50)");
     await query("ALTER TABLE matches ADD COLUMN IF NOT EXISTS copa_round VARCHAR(50)");
     await query("ALTER TABLE matches ADD COLUMN IF NOT EXISTS copa_position VARCHAR(50)");
-    
+
     await query("CREATE TABLE IF NOT EXISTS bets (id SERIAL PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, match_id INTEGER NOT NULL REFERENCES matches(id) ON DELETE CASCADE, bet_type VARCHAR(50) NOT NULL, selection TEXT NOT NULL, amount NUMERIC(10,2) NOT NULL, odds NUMERIC(10,2) NOT NULL, potential_return NUMERIC(10,2) NOT NULL, status VARCHAR(50) DEFAULT 'pending', result VARCHAR(50), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
-    
+
     await query("CREATE TABLE IF NOT EXISTS parlay_bets (id SERIAL PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, amount NUMERIC(10,2) NOT NULL, total_odds NUMERIC(10,2) NOT NULL, potential_return NUMERIC(10,2) NOT NULL, status VARCHAR(50) DEFAULT 'pending', result VARCHAR(50), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
-    
+
     await query("CREATE TABLE IF NOT EXISTS parlay_bet_items (id SERIAL PRIMARY KEY, parlay_bet_id INTEGER NOT NULL REFERENCES parlay_bets(id) ON DELETE CASCADE, bet_id INTEGER NOT NULL REFERENCES bets(id) ON DELETE CASCADE)");
-    
+
     await query("CREATE TABLE IF NOT EXISTS transactions (id SERIAL PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, amount NUMERIC(10,2) NOT NULL, type VARCHAR(100) NOT NULL, description TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
-    
+
     await query("CREATE TABLE IF NOT EXISTS fantasy_scores (id SERIAL PRIMARY KEY, team VARCHAR(255) NOT NULL, matchday INTEGER NOT NULL, points NUMERIC(10,2) NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, UNIQUE(team, matchday))");
+
+    await query("CREATE TABLE IF NOT EXISTS copa_exempts (id SERIAL PRIMARY KEY, copa_edition VARCHAR(50) NOT NULL, position VARCHAR(50) NOT NULL, team_name VARCHAR(255) NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, UNIQUE(copa_edition, position))");
 
     console.log('✅ Base de dades PostgreSQL inicialitzada correctament');
   } catch (error) {
@@ -117,6 +119,21 @@ export const fantasyQueries = {
   getAllScores: async () => all('SELECT * FROM fantasy_scores ORDER BY matchday ASC, points DESC'),
   getClassification: async () => all('SELECT team, SUM(points) as total_points FROM fantasy_scores GROUP BY team ORDER BY total_points DESC'),
   getTeamHistory: async (t) => all('SELECT * FROM fantasy_scores WHERE team = $1 ORDER BY matchday ASC', [t])
+};
+
+export const copaExemptQueries = {
+  getByEdition: async (edition) => all('SELECT * FROM copa_exempts WHERE copa_edition = $1 ORDER BY position', [edition]),
+  upsert: async (edition, position, teamName) => {
+    const r = await query(
+      'INSERT INTO copa_exempts (copa_edition, position, team_name) VALUES ($1, $2, $3) ON CONFLICT (copa_edition, position) DO UPDATE SET team_name = $3 RETURNING id',
+      [edition, position, teamName]
+    );
+    return { lastInsertRowid: r.rows[0].id };
+  },
+  delete: async (edition, position) => {
+    const r = await query('DELETE FROM copa_exempts WHERE copa_edition = $1 AND position = $2', [edition, position]);
+    return { changes: r.rowCount };
+  }
 };
 
 export { pool };

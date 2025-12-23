@@ -1,6 +1,6 @@
 import express from 'express';
-import { matchQueries } from '../config/db.js';
-import { authenticateToken } from './auth.js';
+import { matchQueries, copaExemptQueries } from '../config/db.js';
+import { authenticateToken, requireAdmin } from './auth.js';
 
 const router = express.Router();
 
@@ -14,9 +14,10 @@ router.get('/:edition', authenticateToken, async (req, res) => {
     }
 
     const matches = await matchQueries.getCopaMatches(edition);
+    const exempts = await copaExemptQueries.getByEdition(edition);
 
     // Construir el bracket a partir dels partits de la BD
-    const bracket = buildBracket(matches);
+    const bracket = buildBracket(matches, exempts);
 
     res.json(bracket);
   } catch (error) {
@@ -26,7 +27,7 @@ router.get('/:edition', authenticateToken, async (req, res) => {
 });
 
 // Funció per construir el bracket a partir dels partits
-function buildBracket(matches) {
+function buildBracket(matches, exempts = []) {
   const bracket = {
     round16: {
       left: [],
@@ -43,6 +44,15 @@ function buildBracket(matches) {
     },
     final: null
   };
+
+  // Processar exempts (només informatius, no partits)
+  exempts.forEach(exempt => {
+    if (exempt.position === 'exempt-left') {
+      bracket.round16.exempt[0] = exempt.team_name;
+    } else if (exempt.position === 'exempt-right') {
+      bracket.round16.exempt[1] = exempt.team_name;
+    }
+  });
 
   matches.forEach(match => {
     const matchData = {
@@ -63,10 +73,6 @@ function buildBracket(matches) {
       } else if (match.copa_position.startsWith('right-')) {
         const index = parseInt(match.copa_position.split('-')[1]) - 1;
         bracket.round16.right[index] = matchData;
-      } else if (match.copa_position === 'exempt-left') {
-        bracket.round16.exempt[0] = match.team1;
-      } else if (match.copa_position === 'exempt-right') {
-        bracket.round16.exempt[1] = match.team1;
       }
     }
     // Quarts de final
@@ -144,5 +150,35 @@ function fillEmptySlots(bracket) {
   if (!bracket.round16.exempt[0]) bracket.round16.exempt[0] = 'TBD';
   if (!bracket.round16.exempt[1]) bracket.round16.exempt[1] = 'TBD';
 }
+
+// PUT /api/copa/:edition/exempts - Actualitzar exempts (només admin)
+router.put('/:edition/exempts', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { edition } = req.params;
+    const { exemptLeft, exemptRight } = req.body;
+
+    if (!['edition1', 'edition2'].includes(edition)) {
+      return res.status(400).json({ error: 'Edició invàlida' });
+    }
+
+    // Actualitzar exempt esquerre
+    if (exemptLeft) {
+      await copaExemptQueries.upsert(edition, 'exempt-left', exemptLeft);
+    }
+
+    // Actualitzar exempt dret
+    if (exemptRight) {
+      await copaExemptQueries.upsert(edition, 'exempt-right', exemptRight);
+    }
+
+    // Retornar els exempts actualitzats
+    const exempts = await copaExemptQueries.getByEdition(edition);
+    res.json({ success: true, exempts });
+
+  } catch (error) {
+    console.error('Error actualitzant exempts:', error);
+    res.status(500).json({ error: 'Error actualitzant exempts' });
+  }
+});
 
 export default router;

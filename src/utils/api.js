@@ -237,6 +237,18 @@ export const copa = {
             console.error("Error copa bracket:", error);
             return null;
         }
+    },
+    updateExempts: async (edition, exemptLeft, exemptRight) => {
+        try {
+            const response = await api.put(`/copa/${edition}/exempts`, {
+                exemptLeft,
+                exemptRight
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error updating exempts:", error);
+            throw error;
+        }
     }
 };
 
