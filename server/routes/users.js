@@ -15,6 +15,26 @@ router.get('/', authenticateToken, requireAdmin, async (req, res) => {
   }
 });
 
+// GET /api/users/me - Obtenir info de l'usuari autenticat
+router.get('/me', authenticateToken, async (req, res) => {
+  try {
+    const user = await userQueries.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: 'Usuari no trobat' });
+    }
+    res.json({
+      id: user.id,
+      username: user.username,
+      coins: user.coins,
+      is_admin: user.is_admin,
+      created_at: user.created_at
+    });
+  } catch (error) {
+    console.error('Error en obtenir usuari:', error);
+    res.status(500).json({ error: 'Error en obtenir usuari' });
+  }
+});
+
 // GET /api/users/leaderboard - Obtenir ranking d'usuaris (públic)
 router.get('/leaderboard', async (req, res) => {
   try {

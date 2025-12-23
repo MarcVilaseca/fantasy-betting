@@ -3,7 +3,7 @@ import { bets as betsApi, users as usersApi } from '../utils/api';
 import { useAuth } from '../utils/AuthContext';
 
 function MyBets() {
-  const { updateUser } = useAuth();
+  const { refreshUser } = useAuth();
   const [bets, setBets] = useState([]);
   const [parlays, setParlays] = useState([]);
   const [transactions, setTransactions] = useState([]);
@@ -47,10 +47,8 @@ function MyBets() {
       const response = await betsApi.cancel(betId);
       console.log('🔴 API response:', response);
 
-      // Actualitzar saldo a la navbar sense recarregar
-      if (response.data?.newBalance !== undefined) {
-        updateUser({ coins: response.data.newBalance });
-      }
+      // Refrescar dades de l'usuari des del backend
+      await refreshUser();
 
       // Recarregar dades - l'aposta desapareixerà perquè està filtrada
       await loadData();
@@ -68,10 +66,8 @@ function MyBets() {
     try {
       const response = await betsApi.cancelParlay(parlayId);
 
-      // Actualitzar saldo a la navbar sense recarregar
-      if (response.data?.newBalance !== undefined) {
-        updateUser({ coins: response.data.newBalance });
-      }
+      // Refrescar dades de l'usuari des del backend
+      await refreshUser();
 
       // Recarregar dades - l'aposta desapareixerà perquè està filtrada
       await loadData();

@@ -11,7 +11,7 @@ function Home() {
   const [error, setError] = useState('');
   const [selectedBets, setSelectedBets] = useState([]);
   const [activeTab, setActiveTab] = useState('available');
-  const { user, updateUser } = useAuth();
+  const { user, refreshUser } = useAuth();
 
   useEffect(() => {
     loadMatches();
@@ -82,7 +82,7 @@ function Home() {
           bets: selectedBets,
           amount
         });
-        updateUser({ coins: response.newBalance });
+        await refreshUser(); // Refrescar dades de l'usuari
         alert(`Aposta combinada creada! Retorn potencial: ${Number(response.potential_return).toFixed(2)} monedes`);
       } else {
         if (selectedBets.length !== 1) {
@@ -94,7 +94,7 @@ function Home() {
           ...bet,
           amount
         });
-        updateUser({ coins: response.newBalance });
+        await refreshUser(); // Refrescar dades de l'usuari
         alert(`Aposta creada! Retorn potencial: ${Number(response.bet.potential_return).toFixed(2)} monedes`);
       }
 

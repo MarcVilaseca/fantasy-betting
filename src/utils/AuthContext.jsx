@@ -57,7 +57,19 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
-  const value = { user, login, register, logout, updateUser, loading };
+  const refreshUser = async () => {
+    try {
+      const { data } = await api.get('/users/me');
+      setUser(data);
+      localStorage.setItem('user', JSON.stringify(data));
+      return data;
+    } catch (error) {
+      console.error('Error refreshing user:', error);
+      return null;
+    }
+  };
+
+  const value = { user, login, register, logout, updateUser, refreshUser, loading };
 
   return (
     <AuthContext.Provider value={value}>
